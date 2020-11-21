@@ -3,12 +3,12 @@
 I reference [yolo-v4-tf.keras](https://github.com/taipingeric/yolo-v4-tf.keras) modified some input and read data.
 
 ## TODO
-[x] yolov4
--[x] train self datasets
--[x] Inference image
--[ ] More backbone
--[ ] Data Augmentation
--[ ] Inference Video
+- [x] yolov4
+- [x] train self datasets
+- [x] Inference image
+- [ ] More backbone
+- [ ] Data Augmentation
+- [ ] Inference Video
 
 
 ## requirments
