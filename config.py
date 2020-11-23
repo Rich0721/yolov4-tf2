@@ -11,7 +11,7 @@ Config = {
     "annotation_folder": "../datasets/voc/Annotations",
     "train_text" : "../datasets/voc/train.txt",
     "val_text": "../datasets/voc/val.txt",
-    "test_text": "../datasets/voc",
+    "test_text": "../datasets/voc/test.txt",
 
     # result file
     "storage_folder":"./logs",
@@ -25,5 +25,5 @@ Config = {
     # Inference
     'max_boxes': 100,
     "iou_threshold": 0.413,
-    "score_threshold": 0.3
+    "score_threshold": 0.5
 }

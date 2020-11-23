@@ -58,10 +58,10 @@ def get_detection_data(img, model_outputs, class_names):
         ymin = int(box[1] * h)
         xmax = int(box[2] * w)
         ymax = int(box[3] * h)
-        print("{}, {}, {}, {}".format(xmin, ymin, xmax, ymax))
         box_w = xmax - xmin
         box_h = ymax - ymin
         score = scores[i]
+        
         cls = class_names[int(classes[i])]
         detections.append([xmin, ymin, xmax, ymax, cls, score, box_w, box_h])
     
@@ -120,7 +120,7 @@ def voc_ap(rec, prec):
     ap = 0.0
     for i in i_list:
         ap += ((mrec[i] - mrec[i-1]) * mprec[i])
-    return ap, mrec, mprec
+    return ap
 
 
 def draw_plot_func(dictionary, n_classes, window_title, plot_title, x_label, output_path, to_show, plot_color, true_p_bar):

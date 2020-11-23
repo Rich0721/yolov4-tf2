@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, ZeroPadding2D, BatchNormalization, LeakyReLU, Add, Concatenate, MaxPooling2D
-from tensorflow.keras.initializers import RandomNormal
+from tensorflow.keras.initializers import RandomNormal, he_normal
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.models import Model
 
 
@@ -17,7 +18,7 @@ def conv(x, filters, kernel_size, downsampling=False, activation='leaky', batch_
         padding = 'same'
         strides = 1
     
-    x = Conv2D(filters, kernel_size, strides=strides, padding=padding, use_bias=use_bias, kernel_initializer=RandomNormal(mean=0, stddev=0.01))(x)
+    x = Conv2D(filters, kernel_size, strides=strides, padding=padding, use_bias=use_bias, kernel_regularizer=l2(0.0005),kernel_initializer=RandomNormal(stddev=0.01))(x)
     
     if batch_norm:
         x = BatchNormalization()(x)

@@ -1,14 +1,18 @@
 import xml.etree.ElementTree as ET
+from matplotlib.pyplot import box
 from tensorflow.keras.utils import Sequence
 import numpy as np
 import os
 import cv2
+from tensorflow.python.keras.backend import shape
 from config import Config
+from imgaug import augmenters as iaa
+import imgaug as ia
 
-
+ia.seed(2)
 class DataGenerator(Sequence):
 
-    def __init__(self, annotation_folder, image_folder, text_file, max_boxes=100, shuffle=True):
+    def __init__(self, annotation_folder, image_folder, text_file, max_boxes=100, shuffle=True, data_augments=True):
 
         self.annotation_folder = annotation_folder
         self.image_folder = image_folder
@@ -22,6 +26,21 @@ class DataGenerator(Sequence):
         self.shuffle = shuffle
         self.indexes = np.arange(len(self.files))
         self.max_boxes = max_boxes
+        self.data_augments = data_augments
+        if self.data_augments:
+            self.sequential = iaa.Sequential([
+                iaa.Flipud(0.5), # vertically flip 20 %
+                iaa.Fliplr(0.5), # horizontal flip 20%
+                iaa.Multiply((0.5, 1.5), per_channel=0.5), # brightness
+                iaa.GaussianBlur(sigma=(0, 3.0)),
+                iaa.Affine(translate_px={"x": 15, "y": 15}, scale=(0.8, 0.95), rotate=(-30, 30)),
+                iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05*255), per_channel=0.5),
+                iaa.Invert(0.05, per_channel=True), # invert color channels
+                iaa.Add((-10, 10), per_channel=0.5), # Add a value of -10 to 10 to each pixel.
+                iaa.Emboss(alpha=(0, 1.0), strength=(0, 2.0)),# Same as sharpen, but for an embossing effect
+                ]
+                ,random_order=True)
+            self.sequential = self.sequential.to_deterministic()
         self.on_epoch_end()
 
     def __len__(self):
@@ -39,7 +58,32 @@ class DataGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
     
+    def size(self):
+        return len(self.files)
 
+    def load_image(self, i):
+        return cv2.imread(os.path.join(self.image_folder, self.files[i]+".jpg"))
+    
+    def load_annotations(self, i):
+        root = ET.parse(os.path.join(self.annotation_folder, self.files[i] + ".xml"))
+        objs = root.findall("object")
+        box_data = []
+        if len(objs) > 0:
+            for obj in objs:
+                name = obj.find("name").text
+                class_index = self.classes.index(name)
+                bndbox = obj.find("bndbox")
+                xmin = int(bndbox.find('xmin').text)
+                ymin = int(bndbox.find('ymin').text)
+                xmax = int(bndbox.find('xmax').text)
+                ymax = int(bndbox.find('ymax').text)
+                box_data.append([xmin, ymin, xmax, ymax, class_index])
+        
+        if len(box_data) == 0:
+            box_data = [[]]
+
+        return np.array(box_data)
+        
     def __data_generation(self, input_name):
 
         X = np.empty((len(input_name), *self.image_size), dtype=np.float32)
@@ -63,7 +107,7 @@ class DataGenerator(Sequence):
         h, w, c = self.image_size
         scale_w, scale_h = w/iw, h/ih
         image = cv2.resize(image, (w, h))
-        image_data = np.array(image) / 255.
+        
 
         # read xml
         root = ET.parse(os.path.join(self.annotation_folder, file_name + ".xml"))
@@ -82,11 +126,33 @@ class DataGenerator(Sequence):
             if len(box_data) > self.max_boxes:
                 np.random.shuffle(box_data)
                 box_data = box_data[:self.max_boxes]
+
+            if self.data_augments and np.random.uniform() < 0.5:
+                image_data, box_data = self.data_augmentation(image, box_data)
+
+        image_data = np.array(image) / 255.
         box_data = np.array(box_data)
         
         return image_data, box_data
 
-
+    def data_augmentation(self, image_data, bbox_data):
+        
+        bbs = ia.BoundingBoxesOnImage([
+            ia.BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3]) for box in bbox_data
+        ], shape=image_data.shape)
+        
+        image_data = image_data.astype(np.uint8)
+        image_aug = self.sequential.augment_images([image_data])[0]
+        
+        bbs_augs = self.sequential.augment_bounding_boxes([bbs])[0]
+        for i,bbs_aug in enumerate(bbs_augs):
+            bbox_data[i][0] = bbs_aug.x1
+            bbox_data[i][1] = bbs_aug.y1
+            bbox_data[i][2] = bbs_aug.x2
+            bbox_data[i][3] = bbs_aug.y2
+        
+        return image_aug, bbox_data
+            
 def preprocess_true_boxes(true_boxes, input_shpe, anchors, num_classes):
 
     '''Preprocess true boxes to training input format'''
