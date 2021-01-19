@@ -1,6 +1,6 @@
 # yolov4-tf2
 
-This is a yolov4 program. But I didn't train VOC or COCO datasets. The paper is `[YOLOv4: Optimal Speed and Accuracy of Object Detection](https://arxiv.org/abs/2004.10934)`.  
+This is a yolov4 program. But I didn't train VOC or COCO datasets. The paper is [YOLOv4: Optimal Speed and Accuracy of Object Detection](https://arxiv.org/abs/2004.10934).  
 
 
 ## TODO
