@@ -14,21 +14,51 @@ This is a yolov4 program. You can train VOC or COCO datasets. The paper is [YOLO
 - [ ] Yolov4 Tiny
 - [ ] More backbone
 
-## Training 
-You need to modify `config.py`    
-`CLASSES`: Youself classes.  
-`TRAIN_TEXT`: Train datasets  
-`VAL_TEXT`: Validation datasets, it is used to evalutate model.  
-`DATASETS` and `VAL_DATASET`: You can use `voc_annotation` produce `train text`. The format is (image_path xmin, ymin, xmax, ymax, classes_number.  
-
-If you want to train `VOC dataset`, you need to use `voc_annotation.py` that will xml convert to text.  
-If you want to train `COCO dataset`, you need to use `coco_annotation.py` that will xml convert to text.  
-
-## Predict
+## Requriments
+I use tensorflow2 implenment.
 ```
-python predcit.py
+pip install -r requirments.txt
 ```
 
+## Train
+Step 1: Modify `config.py`  
+```
+    EPOCHS : The number of iteration. 
+    BATCH_SIZE: You can modify size, according to your GPU.
+
+    CLASSES: You want to train classes.
+    
+    DATASET : Dataset path
+    VOC_TEXT_FILE: Dataset train, val, test images information.
+    VOC_TRAIN_FILE: Produce train text file.
+
+    MODEL_FOLDER : Stroage weigth folder
+    FILE_NAME : Storage weigth weight
+```
+Open the common line or IDLE.  
+Step 2: `python voc_annotation.py`
+You can obtain three text files(train.txt, val.txt and test.txt)  
+  
+Step 3: `python train_300.py`  
+
+## Test
+
+If you want to use my weight file, you can go to download in the link.  
+https://drive.google.com/file/d/1d6pQPtQi3t6YduDcCPW67Qi-hwxwVPfx/view?usp=sharing  
+
+You can look `predict_image.ipynb`.  
+
+### Execute results
+`python predict.py`
+
+## Evalutate model
+Step 1: You need use `python predict_text.py` produce predicted results' text file.  
+Step 2: `python evaluate.py`  
+
+## Execute Video
+
+`python video.py`  
+You can look to detected result of video.
 
 ## Reference
 [yolov4-keras](https://github.com/bubbliiiing/yolov4-keras)  
