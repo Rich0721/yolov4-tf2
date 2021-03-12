@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
-import os
 from config import config
-from glob import glob 
+import numpy as np
 
 def convert_annotation(xml_file, text_file):
 
@@ -20,13 +19,17 @@ def convert_annotation(xml_file, text_file):
 
 if __name__ == "__main__":
     
-    images = glob(os.path.join(config.DATASET, "JPEGImages", "*.jpg"))
-    xmls = glob(os.path.join(config.DATASET, "Annotations", "*.xml"))
-    assert len(images) == len(xmls), "Images number and XML files number need same."
     
-    f = open(config.TRAIN_TEXT, "w")
-    for image, xml in zip(images, xmls):
-        print(image)
-        f.write(image)
-        convert_annotation(xml, f)
-        f.write("\n")
+    for index, file_name in enumerate(config.TRAIN_TEXT):
+        
+        with open(config.VOC_TEXT_FILE[index]) as f:
+            lines = f.read().split()
+        np.random.shuffle(lines)
+        f = open(file_name, 'w')
+        
+        for line in lines:
+            print(line)
+            f.write(config.DATASET + "JPEGImages/" + line + ".jpg")
+            convert_annotation(config.DATASET + "Annotations/" + line + ".xml", f)
+            f.write("\n")
+        f.close()
