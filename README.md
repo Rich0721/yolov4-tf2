@@ -44,7 +44,7 @@ Step 3: `python train_300.py`
 ## Test
 
 If you want to use my weight file, you can go to download in the link.  
-https://drive.google.com/file/d/1d6pQPtQi3t6YduDcCPW67Qi-hwxwVPfx/view?usp=sharing  
+https://drive.google.com/file/d/1EkN-JIqn1V9xwYWcXYsRjUfJRXpD8lPK/view?usp=sharing
 
 You can look `predict_image.ipynb`.  
 
@@ -52,8 +52,8 @@ You can look `predict_image.ipynb`.
 `python predict.py`
 
 ## Evalutate model
-Step 1: You need use `python predict_text.py` produce predicted results' text file.  
-Step 2: `python evaluate.py`  
+Modify the `evaluate.py` load weigth path, you can evaluate yourself model.   
+`python evaluate.py` 
 
 ## Execute Video
 
